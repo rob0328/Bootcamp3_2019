@@ -29,13 +29,25 @@ module.exports = function(req, res, next) {
           to add the coordinates to the listing request to be saved to the database.
           Assumption: if we get a result we will take the coordinates from the first result returned
         */
-        
-        //console.log(JSON.parse(body).results[0].geometry); //Does not treat body like a JSON object before being parsed
-        //console.log(locationCoordinates);
 
-        var locationCoordinates = JSON.parse(body).results[0].geometry; //Body is parsed; Coordinates are inserted into variable
-        
-        req.results = locationCoordinates; //Coordinates are saved with req.results
+        parsedBody = JSON.parse(body);
+
+        if(parsedBody.status.code == 200)
+        {
+          var locationCoordinates = parsedBody.results[0].geometry; //Body is parsed; Coordinates are inserted into variable
+          req.results = locationCoordinates; //Coordinates are saved with req.results
+        }
+
+        else if (parsedBody.status.code == 402) 
+        {
+          console.log('hit free-trial daily limit');
+        }
+
+        else 
+        {
+          // other possible response codes:
+          console.log('error', parsedBody.status.message);
+        }
         
         next();
     });
